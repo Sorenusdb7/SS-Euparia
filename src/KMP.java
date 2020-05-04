@@ -98,7 +98,7 @@ public class KMP {
     } 
 
     /**
-     * Returns the index of the first occurrrence of the pattern string
+     * Returns the index of the first occurrence of the pattern string
      * in the text string.
      *
      * @param  txt the text string
@@ -119,7 +119,7 @@ public class KMP {
     }
 
     /**
-     * Returns the index of the first occurrrence of the pattern string
+     * Returns the index of the first occurrence of the pattern string
      * in the text string.
      *
      * @param  text the text string
@@ -162,12 +162,12 @@ public class KMP {
         // print results
         System.out.println("text:    " + txt);
 
-        System.out.println("pattern: ");
+        System.out.print("pattern: ");
         for (int i = 0; i < offset1; i++)
         	System.out.print(" ");
         System.out.println(pat);
 
-        System.out.println("pattern: ");
+        System.out.print("pattern: ");
         for (int i = 0; i < offset2; i++)
         	System.out.print(" ");
         System.out.println(pat);
