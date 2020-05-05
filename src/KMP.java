@@ -173,11 +173,11 @@ public class KMP {
 	 * Alphabet cannot contain semicolons ";"
 	 * @return A string of the pattern and text separated by a semicolon
 	 */
-	private static String makeText() {
+	private static String makeText(int patL, int txtL) {
 
 		// --- experimental variables ---
-		final int patLen = 3;
-		final int txtLen = 100;
+		final int patLen = patL;
+		final int txtLen = txtL;
 		final String[] alph = new String[]{"a","b","c","d","e","f","g","h","i","j",
 				"k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 		// {"0,1"}
@@ -227,7 +227,7 @@ public class KMP {
 			else System.out.printf("\nWrong number of arguments provided: %d\n", args.length);
 		}
 		else {
-			String total = makeText();
+			String total = makeText(3, 100000);
 			
 			// build pat
 			int index = 0;
@@ -269,6 +269,7 @@ public class KMP {
 		KMP kmp2 = new KMP(pattern, 256);
 		int offset2 = kmp2.search(text);
 
+		/*
 		// print results
 		System.out.println("text:    " + txt);
 
@@ -281,6 +282,7 @@ public class KMP {
 		for (int i = 0; i < offset2; i++)
 			System.out.print(" ");
 		System.out.println(pat);
+		*/
 	}
 }
 
