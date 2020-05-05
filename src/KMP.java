@@ -141,6 +141,33 @@ public class KMP {
 		return n;                    // not found
 	}
 
+	private static int bruteForceSearch(String pat, String text) {
+		
+		int index = -1;
+		boolean done = false;
+		while(!done) {
+			index ++;
+			if(index >= text.length() - pat.length()) break;
+			int matches = 0;
+			char t = text.charAt(index);
+			char p = pat.charAt(0);
+			
+			while(t == p) {
+				if(matches == pat.length()) {
+					done = true;
+					break;
+				}
+				t = text.charAt(index + matches);
+				p = pat.charAt(matches);
+				matches++;
+			}
+		}
+		if(index >= text.length() - pat.length()) {
+			index = -1;
+		}
+		return index;
+	}
+	
 	/**
 	 * Creates a pattern and a text of the given lengths using the provided alphabet. 
 	 * Alphabet cannot contain semicolons ";"
@@ -149,7 +176,7 @@ public class KMP {
 	private static String makeText() {
 
 		// --- experimental variables ---
-		final int patLen =2;
+		final int patLen = 3;
 		final int txtLen = 100;
 		final String[] alph = new String[]{"a","b","c","d","e","f","g","h","i","j",
 				"k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
@@ -224,6 +251,18 @@ public class KMP {
 		
 		//System.out.printf("Pat: %s, Txt: %s\n", pat, txt);
 		
+		// Now execute searches
+		
+		// First Brute Force...
+		int index = bruteForceSearch(pat, txt);
+		if(index == -1) {
+			System.out.println("Pattern not found");
+		}
+		else {
+			System.out.printf("Pattern found at index %d\n", index);
+		}
+;		
+		// ... then KMP
 		KMP kmp1 = new KMP(pat);
 		int offset1 = kmp1.search(txt);
 
