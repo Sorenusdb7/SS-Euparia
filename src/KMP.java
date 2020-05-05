@@ -1,3 +1,5 @@
+import java.util.Random;
+
 /******************************************************************************
  *  Compilation:  javac KMP.java
  *  Execution:    java KMP pattern text
@@ -46,132 +48,201 @@
  *  <i>Algorithms, 4th Edition</i> by Robert Sedgewick and Kevin Wayne.
  */
 public class KMP {
-    private final int R;       // the radix
-    private int[][] dfa;       // the KMP automoton
+	private final int R;       // the radix
+	private int[][] dfa;       // the KMP automoton
 
-    private char[] pattern;    // either the character array for the pattern
-    private String pat;        // or the pattern string
+	private char[] pattern;    // either the character array for the pattern
+	private String pat;        // or the pattern string
 
-    /**
-     * Preprocesses the pattern string.
-     *
-     * @param pat the pattern string
-     */
-    public KMP(String pat) {
-        this.R = 256;
-        this.pat = pat;
+	/**
+	 * Preprocesses the pattern string.
+	 *
+	 * @param pat the pattern string
+	 */
+	public KMP(String pat) {
+		this.R = 256;
+		this.pat = pat;
 
-        // build DFA from pattern
-        int m = pat.length();
-        dfa = new int[R][m]; 
-        dfa[pat.charAt(0)][0] = 1; 
-        for (int x = 0, j = 1; j < m; j++) {
-            for (int c = 0; c < R; c++) 
-                dfa[c][j] = dfa[c][x];     // Copy mismatch cases. 
-            dfa[pat.charAt(j)][j] = j+1;   // Set match case. 
-            x = dfa[pat.charAt(j)][x];     // Update restart state. 
-        } 
-    } 
+		// build DFA from pattern
+		int m = pat.length();
+		dfa = new int[R][m]; 
+		dfa[pat.charAt(0)][0] = 1; 
+		for (int x = 0, j = 1; j < m; j++) {
+			for (int c = 0; c < R; c++) 
+				dfa[c][j] = dfa[c][x];     // Copy mismatch cases. 
+			dfa[pat.charAt(j)][j] = j+1;   // Set match case. 
+			x = dfa[pat.charAt(j)][x];     // Update restart state. 
+		} 
+	} 
 
-    /**
-     * Preprocesses the pattern string.
-     *
-     * @param pattern the pattern string
-     * @param R the alphabet size
-     */
-    public KMP(char[] pattern, int R) {
-        this.R = R;
-        this.pattern = new char[pattern.length];
-        for (int j = 0; j < pattern.length; j++)
-            this.pattern[j] = pattern[j];
+	/**
+	 * Preprocesses the pattern string.
+	 *
+	 * @param pattern the pattern string
+	 * @param R the alphabet size
+	 */
+	public KMP(char[] pattern, int R) {
+		this.R = R;
+		this.pattern = new char[pattern.length];
+		for (int j = 0; j < pattern.length; j++)
+			this.pattern[j] = pattern[j];
 
-        // build DFA from pattern
-        int m = pattern.length;
-        dfa = new int[R][m]; 
-        dfa[pattern[0]][0] = 1; 
-        for (int x = 0, j = 1; j < m; j++) {
-            for (int c = 0; c < R; c++) 
-                dfa[c][j] = dfa[c][x];     // Copy mismatch cases. 
-            dfa[pattern[j]][j] = j+1;      // Set match case. 
-            x = dfa[pattern[j]][x];        // Update restart state. 
-        } 
-    } 
+		// build DFA from pattern
+		int m = pattern.length;
+		dfa = new int[R][m]; 
+		dfa[pattern[0]][0] = 1; 
+		for (int x = 0, j = 1; j < m; j++) {
+			for (int c = 0; c < R; c++) 
+				dfa[c][j] = dfa[c][x];     // Copy mismatch cases. 
+			dfa[pattern[j]][j] = j+1;      // Set match case. 
+			x = dfa[pattern[j]][x];        // Update restart state. 
+		} 
+	} 
 
-    /**
-     * Returns the index of the first occurrence of the pattern string
-     * in the text string.
-     *
-     * @param  txt the text string
-     * @return the index of the first occurrence of the pattern string
-     *         in the text string; N if no such match
-     */
-    public int search(String txt) {
+	/**
+	 * Returns the index of the first occurrence of the pattern string
+	 * in the text string.
+	 *
+	 * @param  txt the text string
+	 * @return the index of the first occurrence of the pattern string
+	 *         in the text string; N if no such match
+	 */
+	public int search(String txt) {
 
-        // simulate operation of DFA on text
-        int m = pat.length();
-        int n = txt.length();
-        int i, j;
-        for (i = 0, j = 0; i < n && j < m; i++) {
-            j = dfa[txt.charAt(i)][j];
-        }
-        if (j == m) return i - m;    // found
-        return n;                    // not found
-    }
+		// simulate operation of DFA on text
+		int m = pat.length();
+		int n = txt.length();
+		int i, j;
+		for (i = 0, j = 0; i < n && j < m; i++) {
+			j = dfa[txt.charAt(i)][j];
+		}
+		if (j == m) return i - m;    // found
+		return n;                    // not found
+	}
 
-    /**
-     * Returns the index of the first occurrence of the pattern string
-     * in the text string.
-     *
-     * @param  text the text string
-     * @return the index of the first occurrence of the pattern string
-     *         in the text string; N if no such match
-     */
-    public int search(char[] text) {
+	/**
+	 * Returns the index of the first occurrence of the pattern string
+	 * in the text string.
+	 *
+	 * @param  text the text string
+	 * @return the index of the first occurrence of the pattern string
+	 *         in the text string; N if no such match
+	 */
+	public int search(char[] text) {
 
-        // simulate operation of DFA on text
-        int m = pattern.length;
-        int n = text.length;
-        int i, j;
-        for (i = 0, j = 0; i < n && j < m; i++) {
-            j = dfa[text[i]][j];
-        }
-        if (j == m) return i - m;    // found
-        return n;                    // not found
-    }
+		// simulate operation of DFA on text
+		int m = pattern.length;
+		int n = text.length;
+		int i, j;
+		for (i = 0, j = 0; i < n && j < m; i++) {
+			j = dfa[text[i]][j];
+		}
+		if (j == m) return i - m;    // found
+		return n;                    // not found
+	}
+
+	/**
+	 * Creates a pattern and a text of the given lengths using the provided alphabet. 
+	 * Alphabet cannot contain semicolons ";"
+	 * @return A string of the pattern and text separated by a semicolon
+	 */
+	private static String makeText() {
+
+		// --- experimental variables ---
+		final int patLen =2;
+		final int txtLen = 100;
+		final String[] alph = new String[]{"a","b","c","d","e","f","g","h","i","j",
+				"k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+		// {"0,1"}
+		// {"a","c","t","g"}
+
+		StringBuilder pat = new StringBuilder(patLen);
+		StringBuilder txt = new StringBuilder(txtLen);
+		StringBuilder total = new StringBuilder(patLen + txtLen);
+		Random r = new Random();
 
 
-    /** 
-     * Takes a pattern string and an input string as command-line arguments;
-     * searches for the pattern string in the text string; and prints
-     * the first occurrence of the pattern string in the text string.
-     *
-     * @param args the command-line arguments
-     */
-    public static void main(String[] args) {
-        String pat = args[0];
-        String txt = args[1];
-        char[] pattern = pat.toCharArray();
-        char[] text    = txt.toCharArray();
+		// build pat
+		for(int p = 0; p < patLen; p++) { pat.append(alph[r.nextInt(alph.length - 1)]);	}
 
-        KMP kmp1 = new KMP(pat);
-        int offset1 = kmp1.search(txt);
+		// build txt
+		for(int p = 0; p < txtLen; p++) { txt.append(alph[r.nextInt(alph.length - 1)]);	}
 
-        KMP kmp2 = new KMP(pattern, 256);
-        int offset2 = kmp2.search(text);
+		// combine and return total
+		total.append(pat);
+		total.append(";");
+		total.append(txt);
 
-        // print results
-        System.out.println("text:    " + txt);
+		//System.out.printf("Made: %s\n", total.toString());
+		
+		return total.toString();
+	}
 
-        System.out.print("pattern: ");
-        for (int i = 0; i < offset1; i++)
-        	System.out.print(" ");
-        System.out.println(pat);
+	/** 
+	 * Takes a pattern string and an input string as command-line arguments;
+	 * searches for the pattern string in the text string; and prints
+	 * the first occurrence of the pattern string in the text string.
+	 *
+	 * @param args the command-line arguments
+	 */
+	public static void main(String[] args) {
 
-        System.out.print("pattern: ");
-        for (int i = 0; i < offset2; i++)
-        	System.out.print(" ");
-        System.out.println(pat);
-    }
+		// check for args, then either use args or makeText
+		String pat = "";
+		String txt = "";
+		
+		if(args.length != 0) {
+
+			if(args.length == 2) {
+				pat = args[0];
+				txt = args[1];
+			}
+			else System.out.printf("\nWrong number of arguments provided: %d\n", args.length);
+		}
+		else {
+			String total = makeText();
+			
+			// build pat
+			int index = 0;
+			char c = total.charAt(index);
+			while(c != ';') {
+				pat = pat + c;
+				index++;
+				c = total.charAt(index);
+			}
+			
+			// build text
+			index++; // clear semicolon
+			for(int i = index; i < total.length(); i++) {
+				c = total.charAt(i);
+				txt = txt + c;
+			}
+		}
+
+		char[] pattern = pat.toCharArray();
+		char[] text    = txt.toCharArray();
+		
+		//System.out.printf("Pat: %s, Txt: %s\n", pat, txt);
+		
+		KMP kmp1 = new KMP(pat);
+		int offset1 = kmp1.search(txt);
+
+		KMP kmp2 = new KMP(pattern, 256);
+		int offset2 = kmp2.search(text);
+
+		// print results
+		System.out.println("text:    " + txt);
+
+		System.out.print("pattern: ");
+		for (int i = 0; i < offset1; i++)
+			System.out.print(" ");
+		System.out.println(pat);
+
+		System.out.print("pattern: ");
+		for (int i = 0; i < offset2; i++)
+			System.out.print(" ");
+		System.out.println(pat);
+	}
 }
 
 /******************************************************************************
