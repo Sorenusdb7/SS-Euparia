@@ -187,13 +187,19 @@ public class KMP {
 	 * Alphabet cannot contain semicolons ";"
 	 * @return A string of the pattern and text separated by a semicolon
 	 */
-	private static String makeText(int patL, int txtL) {
+	private static String makeText(int patL, int txtL, String[] alphabet) {
 
 		// --- experimental variables ---
 		final int patLen = patL;
 		final int txtLen = txtL;
-		final String[] alph = new String[]{"a","b","c","d","e","f","g","h","i","j",
-				"k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+		if (alphabet == null)
+		{
+			final String[] alph = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
+					"v","w","x","y","z"};
+		}
+		else { 
+		final String[] alph = alphabet;
+		}
 		// {"0,1"}
 		// {"a","c","t","g"}
 
@@ -231,10 +237,11 @@ public class KMP {
 	 * @param numOfTrials number of trials of KMP to run
 	 * @param alph a char array of the alphabet to be used to generate txt and pat
 	 */
-	public static void runTrials(int patSize, int txtSize, int numOfTrials) {
+	public static void runTrials(int patSize, int txtSize, int numOfTrials, String[] alph) {
 		// int arrays to store the number of array inspections for each alg for each trial
 		int[] KMPresults = new int[numOfTrials];
 		int[] BFresults = new int[numOfTrials];
+		
 				
 		for (int trial = 0; trial < numOfTrials; trial++) {
 			// initialize pat and text
@@ -244,10 +251,10 @@ public class KMP {
 			counter = 0;
 
 			// version with no alt alph ability
-			String total = makeText(patSize, txtSize);
+			//String total = makeText(patSize, txtSize, null);
 			
 			// with changing alph ability
-			//String total = makeText(patSize, txtSize, alph);
+			String total = makeText(patSize, txtSize, alph);
 
 			// build pat
 			int index = 0;
