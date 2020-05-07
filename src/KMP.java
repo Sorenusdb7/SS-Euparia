@@ -218,6 +218,115 @@ public class KMP {
 		
 		return total.toString();
 	}
+	
+	/**
+	 * Runs a certain number of trials with text and patterns generated of specific lengths.
+	 * Doesn't return any value but prints the highest number of array inspections for any
+	 * of the trials and the average number of array inspections for the trials
+	 * 
+	 * Each trial runs the KMP and brute force algorithms on the generated text and pattern. 
+	 * 
+	 * @param txtSize size of text to be generated and searched
+	 * @param patSize size of pattern to be generated and searched for in text
+	 * @param numOfTrials number of trials of KMP to run
+	 * @param alph a char array of the alphabet to be used to generate txt and pat
+	 */
+	public static void runTrials(int patSize, int txtSize, int numOfTrials) {
+		// int arrays to store the number of array inspections for each alg for each trial
+		int[] KMPresults = new int[numOfTrials];
+		int[] BFresults = new int[numOfTrials];
+				
+		for (int trial = 0; trial < numOfTrials; trial++) {
+			// initialize pat and text
+			// check patSize is at least 3??
+			String pat = "";
+			String txt = "";
+			counter = 0;
+
+			// version with no alt alph ability
+			String total = makeText(patSize, txtSize);
+			
+			// with changing alph ability
+			//String total = makeText(patSize, txtSize, alph);
+
+			// build pat
+			int index = 0;
+			char c = total.charAt(index);
+			while (c != ';') {
+				pat = pat + c;
+				index++;
+				c = total.charAt(index);
+			}
+
+			// build text
+			index++; // clear semicolon
+			for (int i = index; i < total.length(); i++) {
+				c = total.charAt(i);
+				txt = txt + c;
+			}
+						
+			// run brute force
+			// if pat found, add array inspections to the array
+			int BFindex = bruteForceSearch(pat, txt);
+			int bfTrials = returnCount();
+			if(index != -1) {
+				BFresults[trial] = bfTrials;
+			}
+			
+			// run KMP
+			// if pat found, add array inspections to the array
+			KMP kmp1 = new KMP(pat);
+			int offset1 = kmp1.search(txt);
+			int trialsKMP = returnCount();
+
+	        if(offset1 != -1) {
+	        	KMPresults[trial] = trialsKMP;
+	        }
+	        			
+		}
+		
+		// check to make sure array has valid data in it (not all trials failed to find pat)
+		boolean failed = true;
+		int arrayIndex = 0;
+		while (failed) {
+			if (KMPresults[arrayIndex] != 0) {
+				failed = false;
+			}
+			if (arrayIndex < numOfTrials - 1) {
+				arrayIndex++;
+			} else if (arrayIndex == numOfTrials - 1) {
+				break;
+			} else {
+				System.out.println("None of the trials found their patterns. ");
+				break;
+			}
+		}
+		
+		if (!failed) {
+			// find max array inspections for KMP and sum to calculate the average
+			int maxInspections = 0;
+			int indexOfMax = -1;
+			int KMPavg = 0;
+			int BFavg = 0;
+			for (int i = 0; i < numOfTrials; i++) {
+				if (KMPresults[i] > maxInspections) {
+					maxInspections = KMPresults[i];
+					indexOfMax = i;
+				}
+				KMPavg += KMPresults[i];
+				BFavg += BFresults[i];
+			}
+			System.out.println("Max array inspections for pattern of length " + patSize + " was "
+					+ maxInspections + " \ncompared to brute force for the same pattern with " + BFresults[indexOfMax]);
+			
+			KMPavg = KMPavg / numOfTrials;
+			BFavg = BFavg / numOfTrials;
+			
+			System.out.println("Avg KMP: " + KMPavg);
+			System.out.println("Avg Brute Force: " + BFavg);
+		}
+		
+	}
 
 	/** 
 	 * Takes a pattern string and an input string as command-line arguments;
@@ -228,87 +337,8 @@ public class KMP {
 	 */
 	public static void main(String[] args) {
 
-		// check for args, then either use args or makeText
-		String pat = "";
-		String txt = "";
-		counter = 0;
+		runTrials(3, 100000, 10);
 		
-		if(args.length != 0) {
-
-			if(args.length == 2) {
-				pat = args[0];
-				txt = args[1];
-			}
-			else System.out.printf("\nWrong number of arguments provided: %d\n", args.length);
-		}
-		else {
-			String total = makeText(3, 100000);
-			
-			// build pat
-			int index = 0;
-			char c = total.charAt(index);
-			while(c != ';') {
-				pat = pat + c;
-				index++;
-				c = total.charAt(index);
-			}
-			
-			// build text
-			index++; // clear semicolon
-			for(int i = index; i < total.length(); i++) {
-				c = total.charAt(i);
-				txt = txt + c;
-			}
-		}
-
-		char[] pattern = pat.toCharArray();
-		char[] text    = txt.toCharArray();
-		
-		//System.out.printf("Pat: %s, Txt: %s\n", pat, txt);
-		
-		// Now execute searches
-		
-		// First Brute Force...
-		int index = bruteForceSearch(pat, txt);
-		int bfTrials = returnCount();
-		if(index == -1) {
-			System.out.println("Pattern not found");
-		}
-		else {
-			System.out.printf("Pattern found at index %d\n", index);
-            System.out.printf("Pattern found in %d trials\n", bfTrials);
-		}
-;		
-		// ... then KMP
-		KMP kmp1 = new KMP(pat);
-		int offset1 = kmp1.search(txt);
-		int trialsKMP = returnCount();
-
-		KMP kmp2 = new KMP(pattern, 256);
-		int offset2 = kmp2.search(text);
-
-        if(offset1 == -1) {
-            System.out.println("Pattern not found");
-        }
-        else {
-            System.out.printf("Pattern found at index %d\n", offset1);
-            System.out.printf("Pattern found in %d trials\n", trialsKMP);
-        }
-
-		/*
-		// print results
-		System.out.println("text:    " + txt);
-
-		System.out.print("pattern: ");
-		for (int i = 0; i < offset1; i++)
-			System.out.print(" ");
-		System.out.println(pat);
-
-		System.out.print("pattern: ");
-		for (int i = 0; i < offset2; i++)
-			System.out.print(" ");
-		System.out.println(pat);
-		*/
 	}
 }
 
