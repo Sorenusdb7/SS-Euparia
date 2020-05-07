@@ -53,6 +53,7 @@ public class KMP {
 
 	private char[] pattern;    // either the character array for the pattern
 	private String pat;        // or the pattern string
+    private static int counter;
 
 	/**
 	 * Preprocesses the pattern string.
@@ -62,6 +63,7 @@ public class KMP {
 	public KMP(String pat) {
 		this.R = 256;
 		this.pat = pat;
+
 
 		// build DFA from pattern
 		int m = pat.length();
@@ -115,6 +117,7 @@ public class KMP {
 		int i, j;
 		for (i = 0, j = 0; i < n && j < m; i++) {
 			j = dfa[txt.charAt(i)][j];
+			counter++;
 		}
 		if (j == m) return i - m;    // found
 		return n;                    // not found
@@ -136,6 +139,7 @@ public class KMP {
 		int i, j;
 		for (i = 0, j = 0; i < n && j < m; i++) {
 			j = dfa[text[i]][j];
+			counter++;
 		}
 		if (j == m) return i - m;    // found
 		return n;                    // not found
@@ -150,7 +154,9 @@ public class KMP {
 			if(index >= text.length() - pat.length()) break;
 			int matches = 0;
 			char t = text.charAt(index);
+			counter++;
 			char p = pat.charAt(0);
+			counter++;
 			
 			while(t == p) {
 				if(matches == pat.length()) {
@@ -158,7 +164,9 @@ public class KMP {
 					break;
 				}
 				t = text.charAt(index + matches);
+				counter++;
 				p = pat.charAt(matches);
+				counter++;
 				matches++;
 			}
 		}
@@ -167,6 +175,12 @@ public class KMP {
 		}
 		return index;
 	}
+
+	public static int returnCount() {
+	    int tempCount = counter;
+	    counter = 0;
+	    return tempCount;
+    }
 	
 	/**
 	 * Creates a pattern and a text of the given lengths using the provided alphabet. 
@@ -217,6 +231,7 @@ public class KMP {
 		// check for args, then either use args or makeText
 		String pat = "";
 		String txt = "";
+		counter = 0;
 		
 		if(args.length != 0) {
 
@@ -255,19 +270,30 @@ public class KMP {
 		
 		// First Brute Force...
 		int index = bruteForceSearch(pat, txt);
+		int bfTrials = returnCount();
 		if(index == -1) {
 			System.out.println("Pattern not found");
 		}
 		else {
 			System.out.printf("Pattern found at index %d\n", index);
+            System.out.printf("Pattern found in %d trials\n", bfTrials);
 		}
 ;		
 		// ... then KMP
 		KMP kmp1 = new KMP(pat);
 		int offset1 = kmp1.search(txt);
+		int trialsKMP = returnCount();
 
 		KMP kmp2 = new KMP(pattern, 256);
 		int offset2 = kmp2.search(text);
+
+        if(offset1 == -1) {
+            System.out.println("Pattern not found");
+        }
+        else {
+            System.out.printf("Pattern found at index %d\n", offset1);
+            System.out.printf("Pattern found in %d trials\n", trialsKMP);
+        }
 
 		/*
 		// print results
