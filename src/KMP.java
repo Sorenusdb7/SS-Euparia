@@ -192,13 +192,11 @@ public class KMP {
 		// --- experimental variables ---
 		final int patLen = patL;
 		final int txtLen = txtL;
-		if (alphabet == null)
+		String[] alph = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
+				"v","w","x","y","z"};
+		if (alphabet != null)
 		{
-			final String[] alph = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
-					"v","w","x","y","z"};
-		}
-		else { 
-		final String[] alph = alphabet;
+			alph = alphabet;
 		}
 		// {"0,1"}
 		// {"a","c","t","g"}
@@ -344,7 +342,14 @@ public class KMP {
 	 */
 	public static void main(String[] args) {
 
-		runTrials(3, 100000, 10);
+		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
+				"v","w","x","y","z"};
+		int txtSize = 16384*2*2*2*2*2;
+		runTrials(2, txtSize, 10, abc);
+		runTrials(4, txtSize, 10, abc);
+		runTrials(8, txtSize, 10, abc);
+		runTrials(16, txtSize, 10, abc);
+		runTrials(32, txtSize, 10, abc);
 		
 	}
 }
