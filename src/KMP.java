@@ -150,8 +150,8 @@ public class KMP {
 
 		int index = -1;
 		boolean done = false;
-		while(!done) {
-			index ++;
+		while(!done) { //runs until done
+			index ++; //increment index
 			if(index >= text.length() - pat.length()) break;
 			int matches = 0;
 			char t = text.charAt(index);
@@ -169,10 +169,13 @@ public class KMP {
 				counter++;
 				p = pat.charAt(matches);
 				counter++;
-				
+
 			}
 		}
-		
+		if(!done) {
+			index = -1;
+		}
+
 		return index;
 	}
 
@@ -183,7 +186,7 @@ public class KMP {
 	}
 
 	/**
-	 * Creates a random text String of the given lengths using the provided alphabet. 
+	 * Creates a random text String of the given lengths using the provided alphabet.
 	 * @return A string text
 	 */
 	private static String makeText(int txtL, String[] alphabet) {
@@ -226,7 +229,7 @@ public class KMP {
 		boolean failed = true;
 
 		System.out.printf("Running %d trials for text size %d\n", numOfTrials, txtSize);
-		
+
 		for (int trial = 0; trial < numOfTrials; trial++) {
 			failed = true;
 			while(failed == true) {
@@ -255,7 +258,7 @@ public class KMP {
 
 				// check to make sure array has valid data in it (not all trials failed to find pat)
 				for(int a = 0; a < KMPresults.length; a++) {
-					if(KMPresults[a] != -1) {
+					if((KMPresults[a] != -1) || (patSize >= txtSize)) {
 						failed = false;
 						break;
 					}
@@ -267,24 +270,39 @@ public class KMP {
 
 		if (!failed) {
 			// find max array inspections for KMP and sum to calculate the average
-			int maxInspections = 0;
-			int indexOfMax = -1;
+			int maxInspections = -1;
+			int maxInspectionsBF = -1;
 			int KMPavg = 0;
 			int BFavg = 0;
 			for (int i = 0; i < numOfTrials; i++) {
 				if (KMPresults[i] > maxInspections) {
 					maxInspections = KMPresults[i];
-					indexOfMax = i;
+				}
+				if (BFresults[i] > maxInspectionsBF) {
+					maxInspectionsBF = i;
 				}
 				KMPavg += KMPresults[i];
 				BFavg += BFresults[i];
 			}
-			System.out.printf("Max inspections for pat size %d:\n", patSize);
-			System.out.printf("KMP: %d\n", maxInspections);
-			System.out.printf("BF:  %d\n", BFresults[indexOfMax]);
-			/*System.out.println("Max array inspections for pattern of length " + patSize + " was "
-					+ maxInspections + " \ncompared to brute force for the same pattern with " + BFresults[indexOfMax]);
-*/
+			if (alph.length == 2) {
+                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+                        + txtSize + " was " + maxInspections +
+                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+                        " for binary alphabet.");
+            }
+			else if (alph.length == 4) {
+                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+                        + txtSize + " was " + maxInspections +
+                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+                        " for DNA sequencing alphabet.");
+            }
+			else {
+                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+                        + txtSize + " was " + maxInspections +
+                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+                        " for regular alphabet.");
+            }
+			
 			KMPavg = KMPavg / numOfTrials;
 			BFavg = BFavg / numOfTrials;
 
@@ -305,17 +323,30 @@ public class KMP {
 	 */
 	public static void main(String[] args) {
 
-		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
-				"p","q","r","x","t","u","v","w","x","y","z"};
-		String[] bin = {"0", "1"};
-		String[] rna = {"a", "t", "c", "g"};
-		
-		
-		int n = 14;
-		int txtSize = (int) Math.pow(2, n);
-		
-		
+		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
+				"v","w","x","y","z"};
+		String[] acgt = {"a", "c", "g", "t"};
+		String[] binary = {"0", "1"};
 
+		int txtSize = 8192;
+		for (int i = 0; i < 9; i++) {
+		    txtSize = txtSize * 2;
+		    int patSize = 1;
+		    for (int j = 0; j < 5; j++) {
+		        patSize = patSize * 2;
+                runTrials(patSize, txtSize, 10, abc);
+                runTrials(patSize, txtSize, 10, acgt);
+                runTrials(patSize, txtSize, 10, binary);
+            }
+		    patSize = 8192;
+		    for (int k = 0; k < 9; k++) {
+                patSize = patSize * 2;
+                runTrials(patSize, txtSize, 10, abc);
+                runTrials(patSize, txtSize, 10, acgt);
+                runTrials(patSize, txtSize, 10, binary);
+            }
+        }
+		
 	}
 }
 
