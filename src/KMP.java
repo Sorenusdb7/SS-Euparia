@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.lang.Math;
 
 /******************************************************************************
  *  Compilation:  javac KMP.java
@@ -53,7 +54,7 @@ public class KMP {
 
 	private char[] pattern;    // either the character array for the pattern
 	private String pat;        // or the pattern string
-    private static int counter;
+	private static int counter;
 
 	/**
 	 * Preprocesses the pattern string.
@@ -120,7 +121,7 @@ public class KMP {
 			counter++;
 		}
 		if (j == m) return i - m;    // found
-		return n;                    // not found
+		return -1;                    // not found
 	}
 
 	/**
@@ -142,11 +143,11 @@ public class KMP {
 			counter++;
 		}
 		if (j == m) return i - m;    // found
-		return n;                    // not found
+		return -1;                    // not found
 	}
 
 	private static int bruteForceSearch(String pat, String text) {
-		
+
 		int index = -1;
 		boolean done = false;
 		while(!done) {
@@ -157,8 +158,9 @@ public class KMP {
 			counter++;
 			char p = pat.charAt(0);
 			counter++;
-			
+
 			while(t == p) {
+				matches++;
 				if(matches == pat.length()) {
 					done = true;
 					break;
@@ -167,30 +169,25 @@ public class KMP {
 				counter++;
 				p = pat.charAt(matches);
 				counter++;
-				matches++;
+				
 			}
 		}
-		if(index >= text.length() - pat.length()) {
-			index = -1;
-		}
+		
 		return index;
 	}
 
 	public static int returnCount() {
-	    int tempCount = counter;
-	    counter = 0;
-	    return tempCount;
-    }
-	
-	/**
-	 * Creates a pattern and a text of the given lengths using the provided alphabet. 
-	 * Alphabet cannot contain semicolons ";"
-	 * @return A string of the pattern and text separated by a semicolon
-	 */
-	private static String makeText(int patL, int txtL, String[] alphabet) {
+		int tempCount = counter;
+		counter = 0;
+		return tempCount;
+	}
 
-		// --- experimental variables ---
-		final int patLen = patL;
+	/**
+	 * Creates a random text String of the given lengths using the provided alphabet. 
+	 * @return A string text
+	 */
+	private static String makeText(int txtL, String[] alphabet) {
+
 		final int txtLen = txtL;
 		String[] alph = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
 				"v","w","x","y","z"};
@@ -198,31 +195,17 @@ public class KMP {
 		{
 			alph = alphabet;
 		}
-		// {"0,1"}
-		// {"a","c","t","g"}
 
-		StringBuilder pat = new StringBuilder(patLen);
 		StringBuilder txt = new StringBuilder(txtLen);
-		StringBuilder total = new StringBuilder(patLen + txtLen);
 		Random r = new Random();
 
-
-		// build pat
-		for(int p = 0; p < patLen; p++) { pat.append(alph[r.nextInt(alph.length - 1)]);	}
-
-		// build txt
 		for(int p = 0; p < txtLen; p++) { txt.append(alph[r.nextInt(alph.length - 1)]);	}
 
-		// combine and return total
-		total.append(pat);
-		total.append(";");
-		total.append(txt);
+		//System.out.printf("\nMade text: %s\n", txt);
 
-		//System.out.printf("Made: %s\n", total.toString());
-		
-		return total.toString();
+		return txt.toString();
 	}
-	
+
 	/**
 	 * Runs a certain number of trials with text and patterns generated of specific lengths.
 	 * Doesn't return any value but prints the highest number of array inspections for any
@@ -239,74 +222,49 @@ public class KMP {
 		// int arrays to store the number of array inspections for each alg for each trial
 		int[] KMPresults = new int[numOfTrials];
 		int[] BFresults = new int[numOfTrials];
-		
-				
-		for (int trial = 0; trial < numOfTrials; trial++) {
-			// initialize pat and text
-			// check patSize is at least 3??
-			String pat = "";
-			String txt = "";
-			counter = 0;
-
-			// version with no alt alph ability
-			//String total = makeText(patSize, txtSize, null);
-			
-			// with changing alph ability
-			String total = makeText(patSize, txtSize, alph);
-
-			// build pat
-			int index = 0;
-			char c = total.charAt(index);
-			while (c != ';') {
-				pat = pat + c;
-				index++;
-				c = total.charAt(index);
-			}
-
-			// build text
-			index++; // clear semicolon
-			for (int i = index; i < total.length(); i++) {
-				c = total.charAt(i);
-				txt = txt + c;
-			}
-						
-			// run brute force
-			// if pat found, add array inspections to the array
-			int BFindex = bruteForceSearch(pat, txt);
-			int bfTrials = returnCount();
-			if(index != -1) {
-				BFresults[trial] = bfTrials;
-			}
-			
-			// run KMP
-			// if pat found, add array inspections to the array
-			KMP kmp1 = new KMP(pat);
-			int offset1 = kmp1.search(txt);
-			int trialsKMP = returnCount();
-
-	        if(offset1 != -1) {
-	        	KMPresults[trial] = trialsKMP;
-	        }
-	        			
-		}
-		
-		// check to make sure array has valid data in it (not all trials failed to find pat)
+		String txt = makeText(txtSize, alph);
 		boolean failed = true;
-		int arrayIndex = 0;
-		while (failed) {
-			if (KMPresults[arrayIndex] != 0) {
-				failed = false;
-			}
-			if (arrayIndex < numOfTrials - 1) {
-				arrayIndex++;
-			} else if (arrayIndex == numOfTrials - 1) {
-				break;
-			} else {
-				System.out.println("None of the trials found their patterns. ");
-				break;
+
+		System.out.printf("Running %d trials for text size %d\n", numOfTrials, txtSize);
+		
+		for (int trial = 0; trial < numOfTrials; trial++) {
+			failed = true;
+			while(failed == true) {
+				// create pat for trial and reset counter
+				String pat = makeText(patSize, alph);
+				counter = 0;
+
+				// run brute force
+				// if pat found, add array inspections to the array
+				int BFindex = bruteForceSearch(pat, txt);
+				int bfTrials = returnCount();
+				if(BFindex != -1) {
+					BFresults[trial] = bfTrials;
+				}
+
+				// run KMP
+				// if pat found, add array inspections to the array
+				KMP kmp1 = new KMP(pat);
+				int offset1 = kmp1.search(txt);
+				int trialsKMP = returnCount();
+
+				if(offset1 != -1) {
+					KMPresults[trial] = trialsKMP;
+				}
+
+
+				// check to make sure array has valid data in it (not all trials failed to find pat)
+				for(int a = 0; a < KMPresults.length; a++) {
+					if(KMPresults[a] != -1) {
+						failed = false;
+						break;
+					}
+				}
 			}
 		}
-		
+
+
+
 		if (!failed) {
 			// find max array inspections for KMP and sum to calculate the average
 			int maxInspections = 0;
@@ -321,16 +279,21 @@ public class KMP {
 				KMPavg += KMPresults[i];
 				BFavg += BFresults[i];
 			}
-			System.out.println("Max array inspections for pattern of length " + patSize + " was "
+			System.out.printf("Max inspections for pat size %d:\n", patSize);
+			System.out.printf("KMP: %d\n", maxInspections);
+			System.out.printf("BF:  %d\n", BFresults[indexOfMax]);
+			/*System.out.println("Max array inspections for pattern of length " + patSize + " was "
 					+ maxInspections + " \ncompared to brute force for the same pattern with " + BFresults[indexOfMax]);
-			
+*/
 			KMPavg = KMPavg / numOfTrials;
 			BFavg = BFavg / numOfTrials;
-			
+
+			System.out.printf("Avg inspections for pat size %d: \n", patSize);
 			System.out.println("Avg KMP: " + KMPavg);
 			System.out.println("Avg Brute Force: " + BFavg);
+			System.out.println("");
 		}
-		
+
 	}
 
 	/** 
@@ -342,15 +305,17 @@ public class KMP {
 	 */
 	public static void main(String[] args) {
 
-		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
-				"v","w","x","y","z"};
-		int txtSize = 16384*2*2*2*2*2;
-		runTrials(2, txtSize, 10, abc);
-		runTrials(4, txtSize, 10, abc);
-		runTrials(8, txtSize, 10, abc);
-		runTrials(16, txtSize, 10, abc);
-		runTrials(32, txtSize, 10, abc);
+		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o",
+				"p","q","r","x","t","u","v","w","x","y","z"};
+		String[] bin = {"0", "1"};
+		String[] rna = {"a", "t", "c", "g"};
 		
+		
+		int n = 14;
+		int txtSize = (int) Math.pow(2, n);
+		
+		
+
 	}
 }
 
