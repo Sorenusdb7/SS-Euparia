@@ -152,7 +152,7 @@ public class KMP {
 		boolean done = false;
 		while(!done) { //runs until done
 			index ++; //increment index
-			if(index >= text.length() - pat.length()) break;
+			if(index >= text.length() - pat.length() + 1) break;
 			int matches = 0;
 			char t = text.charAt(index);
 			counter++;
@@ -228,40 +228,47 @@ public class KMP {
 		String txt = makeText(txtSize, alph);
 		boolean failed = true;
 
-		System.out.printf("Running %d trials for text size %d\n", numOfTrials, txtSize);
+		System.out.printf("Running %d trials for text size %d, pattern size %d\n", numOfTrials, txtSize, patSize);
 
 		for (int trial = 0; trial < numOfTrials; trial++) {
 			failed = true;
 			while(failed == true) {
+
+				// if the trial finds the pat, we only need to run once
+				failed = false;
+
 				// create pat for trial and reset counter
 				String pat = makeText(patSize, alph);
 				counter = 0;
 
-				// run brute force
-				// if pat found, add array inspections to the array
-				int BFindex = bruteForceSearch(pat, txt);
-				int bfTrials = returnCount();
-				if(BFindex != -1) {
-					BFresults[trial] = bfTrials;
-				}
-
 				// run KMP
 				// if pat found, add array inspections to the array
 				KMP kmp1 = new KMP(pat);
-				int offset1 = kmp1.search(txt);
-				int trialsKMP = returnCount();
+				int KMPIndex = kmp1.search(txt);
+				int KMPCount = returnCount();
+				
+				//System.out.printf("Txt: %s\nPat: %s\n", txt, pat);
+				//System.out.printf("KMPIndex: %d\n", KMPIndex);
+				
+				if(KMPIndex != -1) {
+					KMPresults[trial] = KMPCount;
 
-				if(offset1 != -1) {
-					KMPresults[trial] = trialsKMP;
-				}
-
-
-				// check to make sure array has valid data in it (not all trials failed to find pat)
-				for(int a = 0; a < KMPresults.length; a++) {
-					if((KMPresults[a] != -1) || (patSize >= txtSize)) {
-						failed = false;
-						break;
+					// run brute force
+					int BFIndex = bruteForceSearch(pat, txt);
+					int BFCount = returnCount();
+					if(BFIndex == KMPIndex) {
+						BFresults[trial] = BFCount;
+						//System.out.printf("Finished trial %d\n", trial);
 					}
+					else {
+						System.out.println("NOOOOOOOOO THE SEARCHES DONT AGREE");
+						System.out.printf("KMPIndex: %d\nBFIndex:  %d\nTxt: %s\nPat: %s", KMPIndex, BFIndex, txt, pat);
+					}
+				}
+				// pattern not found, restart trial
+				else {
+					//System.out.println("trial failed");
+					failed = true;
 				}
 			}
 		}
@@ -279,37 +286,37 @@ public class KMP {
 					maxInspections = KMPresults[i];
 				}
 				if (BFresults[i] > maxInspectionsBF) {
-					maxInspectionsBF = i;
+					maxInspectionsBF = BFresults[i];
 				}
 				KMPavg += KMPresults[i];
 				BFavg += BFresults[i];
 			}
 			if (alph.length == 2) {
-                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-                        + txtSize + " was " + maxInspections +
-                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-                        " for binary alphabet.");
-            }
+				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+						+ txtSize + " was " + maxInspections +
+						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+						" for binary alphabet.");
+			}
 			else if (alph.length == 4) {
-                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-                        + txtSize + " was " + maxInspections +
-                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-                        " for DNA sequencing alphabet.");
-            }
+				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+						+ txtSize + " was " + maxInspections +
+						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+						" for DNA sequencing alphabet.");
+			}
 			else {
-                System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-                        + txtSize + " was " + maxInspections +
-                        " \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-                        " for regular alphabet.");
-            }
-			
+				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
+						+ txtSize + " was " + maxInspections +
+						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
+						" for regular alphabet.");
+			}
+
 			KMPavg = KMPavg / numOfTrials;
 			BFavg = BFavg / numOfTrials;
 
 			System.out.printf("Avg inspections for pat size %d: \n", patSize);
 			System.out.println("Avg KMP: " + KMPavg);
 			System.out.println("Avg Brute Force: " + BFavg);
-			System.out.println("");
+			
 		}
 
 	}
@@ -323,30 +330,46 @@ public class KMP {
 	 */
 	public static void main(String[] args) {
 
-		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","x","t","u",
+		String[] abc = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u",
 				"v","w","x","y","z"};
 		String[] acgt = {"a", "c", "g", "t"};
 		String[] binary = {"0", "1"};
 
+		
+		/*
 		int txtSize = 8192;
 		for (int i = 0; i < 9; i++) {
-		    txtSize = txtSize * 2;
-		    int patSize = 1;
-		    for (int j = 0; j < 5; j++) {
-		        patSize = patSize * 2;
-                runTrials(patSize, txtSize, 10, abc);
-                runTrials(patSize, txtSize, 10, acgt);
-                runTrials(patSize, txtSize, 10, binary);
-            }
-		    patSize = 8192;
-		    for (int k = 0; k < 9; k++) {
-                patSize = patSize * 2;
-                runTrials(patSize, txtSize, 10, abc);
-                runTrials(patSize, txtSize, 10, acgt);
-                runTrials(patSize, txtSize, 10, binary);
-            }
-        }
+			txtSize = txtSize * 2;
+			int patSize = 1;
+			for (int j = 0; j < 5; j++) {
+				patSize = patSize * 2;
+				if(patSize < txtSize) {
+					runTrials(patSize, txtSize, 10, abc);
+					runTrials(patSize, txtSize, 10, acgt);
+					runTrials(patSize, txtSize, 10, binary);
+				}
+				else System.out.printf("Did not run, %d > %d\n", patSize, txtSize);
+			}
+			patSize = 8192;
+			for (int k = 0; k < 9; k++) {
+				patSize = patSize * 2;
+				if(patSize < txtSize) {
+					runTrials(patSize, txtSize, 10, abc);
+					runTrials(patSize, txtSize, 10, acgt);
+					runTrials(patSize, txtSize, 10, binary);
+				}
+				else System.out.printf("Did not run, %d > %d\n", patSize, txtSize);
+			}
+		}
+		*/
 		
+		for(int p = 1; p < 1024; p++) {
+			long t1 = System.nanoTime();
+			runTrials(p, 100, 5, abc);
+			long t2 = System.nanoTime();
+			System.out.printf("Trial set took %ds to complete\n\n", (t2-t1)/1000000000);
+		}
+			
 	}
 }
 
