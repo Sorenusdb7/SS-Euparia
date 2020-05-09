@@ -246,11 +246,20 @@ public class KMP {
 				KMP kmp1 = new KMP(pat);
 				int KMPIndex = kmp1.search(txt);
 				int KMPCount = returnCount();
+				KMPresults[trial] = KMPCount;
 				
-				//System.out.printf("Txt: %s\nPat: %s\n", txt, pat);
-				//System.out.printf("KMPIndex: %d\n", KMPIndex);
+				// run brute force
+				int BFIndex = bruteForceSearch(pat, txt);
+				int BFCount = returnCount();
+				BFresults[trial] = BFCount;
 				
-				if(KMPIndex != -1) {
+				// check that the searches are both in agreement
+				if(BFIndex != KMPIndex) {
+					System.out.println("NOOOOOOOOO THE SEARCHES DONT AGREE");
+					System.out.printf("KMPIndex: %d\nBFIndex:  %d\nTxt: %s\nPat: %s", KMPIndex, BFIndex, txt, pat);
+				}
+				
+				/*if(KMPIndex != -1) {
 					KMPresults[trial] = KMPCount;
 
 					// run brute force
@@ -269,7 +278,7 @@ public class KMP {
 				else {
 					//System.out.println("trial failed");
 					failed = true;
-				}
+				}*/
 			}
 		}
 
@@ -363,7 +372,7 @@ public class KMP {
 		}
 		*/
 		
-		for(int p = 1; p < 1024; p++) {
+		for(int p = 1; p < 100; p++) {
 			long t1 = System.nanoTime();
 			runTrials(p, 100, 5, abc);
 			long t2 = System.nanoTime();
