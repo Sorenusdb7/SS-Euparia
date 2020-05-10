@@ -233,14 +233,16 @@ public class KMP {
 		for (int trial = 0; trial < numOfTrials; trial++) {
 			failed = true;
 			while(failed == true) {
-
+				
 				// if the trial finds the pat, we only need to run once
 				failed = false;
 
 				// create pat for trial and reset counter
 				String pat = makeText(patSize, alph);
 				counter = 0;
-
+				
+				//System.out.printf("Txt: %s, Pat: %s\n", txt, pat);
+				
 				// run KMP
 				// if pat found, add array inspections to the array
 				KMP kmp1 = new KMP(pat);
@@ -285,6 +287,13 @@ public class KMP {
 
 
 		if (!failed) {
+			/*
+			System.out.println("");
+			for(int k = 0; k < BFresults.length; k++) {
+				System.out.printf("%s, ", BFresults[k]);
+			}
+			System.out.println("");
+			*/
 			// find max array inspections for KMP and sum to calculate the average
 			int maxInspections = -1;
 			int maxInspectionsBF = -1;
@@ -300,31 +309,26 @@ public class KMP {
 				KMPavg += KMPresults[i];
 				BFavg += BFresults[i];
 			}
-			if (alph.length == 2) {
-				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-						+ txtSize + " was " + maxInspections +
-						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-						" for binary alphabet.");
-			}
-			else if (alph.length == 4) {
-				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-						+ txtSize + " was " + maxInspections +
-						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-						" for DNA sequencing alphabet.");
-			}
-			else {
-				System.out.println("Max array inspections for pattern of length " + patSize + " on text of length "
-						+ txtSize + " was " + maxInspections +
-						" \ncompared to brute force for the same pattern with " + maxInspectionsBF +
-						" for regular alphabet.");
-			}
-
+			
 			KMPavg = KMPavg / numOfTrials;
 			BFavg = BFavg / numOfTrials;
+			
+			if (alph.length == 2) {
+				System.out.println("Binary alph");
+			}
+			else if (alph.length == 4) {
+				System.out.println("DNA sequencing alph");
+			}
+			else {
+				System.out.println("English alph");
+			}
 
-			System.out.printf("Avg inspections for pat size %d: \n", patSize);
-			System.out.println("Avg KMP: " + KMPavg);
-			System.out.println("Avg Brute Force: " + BFavg);
+			System.out.println("Max Inspections:");
+			System.out.printf("Avg KMP: %d\n", maxInspections);
+			System.out.printf("Avg BF:  %d\n", maxInspectionsBF);
+			System.out.println("Avg inspections:");
+			System.out.printf("Avg KMP: %d\n", KMPavg);
+			System.out.printf("Avg BF:  %d\n\n", BFavg);
 			
 		}
 
@@ -345,7 +349,7 @@ public class KMP {
 		String[] binary = {"0", "1"};
 
 		
-		/*
+		
 		int txtSize = 8192;
 		for (int i = 0; i < 9; i++) {
 			txtSize = txtSize * 2;
@@ -370,15 +374,15 @@ public class KMP {
 				else System.out.printf("Did not run, %d > %d\n", patSize, txtSize);
 			}
 		}
-		*/
 		
+		/*
 		for(int p = 1; p < 100; p++) {
 			long t1 = System.nanoTime();
 			runTrials(p, 100, 5, abc);
 			long t2 = System.nanoTime();
 			System.out.printf("Trial set took %ds to complete\n\n", (t2-t1)/1000000000);
 		}
-			
+		*/	
 	}
 }
 
