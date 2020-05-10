@@ -202,7 +202,7 @@ public class KMP {
 		StringBuilder txt = new StringBuilder(txtLen);
 		Random r = new Random();
 
-		for(int p = 0; p < txtLen; p++) { txt.append(alph[r.nextInt(alph.length - 1)]);	}
+		for(int p = 0; p < txtLen; p++) { txt.append(alph[r.nextInt(alph.length)]);	}
 
 		//System.out.printf("\nMade text: %s\n", txt);
 
@@ -324,8 +324,8 @@ public class KMP {
 			}
 
 			System.out.println("Max Inspections:");
-			System.out.printf("Avg KMP: %d\n", maxInspections);
-			System.out.printf("Avg BF:  %d\n", maxInspectionsBF);
+			System.out.printf("Max KMP: %d\n", maxInspections);
+			System.out.printf("Max BF:  %d\n", maxInspectionsBF);
 			System.out.println("Avg inspections:");
 			System.out.printf("Avg KMP: %d\n", KMPavg);
 			System.out.printf("Avg BF:  %d\n\n", BFavg);
@@ -347,9 +347,8 @@ public class KMP {
 				"v","w","x","y","z"};
 		String[] acgt = {"a", "c", "g", "t"};
 		String[] binary = {"0", "1"};
+		
 
-		
-		
 		int txtSize = 8192;
 		for (int i = 0; i < 9; i++) {
 			txtSize = txtSize * 2;
